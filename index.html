@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Show Different Images</title>
+</head>
+<body>
+    <img id="displayImage" src="" alt="Press a button to display an image" style="max-width: 300px;">
+
+    <button id="button1">Show Bronx 2030 Projection </button>
+    <button id="button2">Show Bronx 2035 Projection</button>
+    <button id="button3">Show Bronx 2040 Projection</button>
+    <button id="button4">Show Bronx 2045 Projection</button>
+    <button id="button5">Show Bronx 2050 Projection</button>
+
+    <script>
+        
+        // const imageUrls = [
+        //     "path/to/image1.jpg",
+        //     "path/to/image2.jpg",
+        //     "path/to/image3.jpg",
+        //     "path/to/image4.jpg",
+        //     "path/to/image5.jpg"
+        // ];
+
+        function showImage(index) {
+            const displayImage = document.getElementById("displayImage");
+            displayImage.src = imageUrls[index];
+        }
+
+        document.getElementById("button1").addEventListener("click", () => showImage(0));
+        document.getElementById("button2").addEventListener("click", () => showImage(1));
+        document.getElementById("button3").addEventListener("click", () => showImage(2));
+        document.getElementById("button4").addEventListener("click", () => showImage(3));
+        document.getElementById("button5").addEventListener("click", () => showImage(4));
+    </script>
+</body>
+</html>

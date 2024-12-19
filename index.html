@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Total Energy Consumption</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        body {
+            font-family: Georgia, 'Times New Roman', Times, serif;
+        }
+
+        .tooltip {
+            position: absolute;
+            background: #ffffff;
+            padding: 5px;
+            border: 1px solid #000;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        rect {
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+    </style>
+</head>
+<body>
+    <h1>Total Energy Consumption, by type (in Quadrillion BTUs) - 2024</h1>
+    <h3>Comparing Natural Gas, Renewable, and Nuclear energy consumption in 2024.</h3>
+    
+    <div id="chart-container"></div>
+
+    <p>Data source: <a href="https://www.eia.gov/outlooks/aeo/tables_ref.php" target="_blank">Energy Information Administration (EIA)</a></p>
+
+    <script>
+        const data = [
+            { Year: "2023", "Natural Gas": 28.68, "Renewable": 10.87, "Nuclear": 8.19 },
+            { Year: "2024", "Natural Gas": 27.52, "Renewable": 11.43, "Nuclear": 8.25 },
+            { Year: "2025", "Natural Gas": 27.23, "Renewable": 12.93, "Nuclear": 8.17 }
+        ];
+
+        const tooltip = d3.select("body").append("div")
+            .attr("class", "tooltip");
+
+        const width = 600;
+        const height = 300;
+        const margin = { top: 20, right: 20, bottom: 40, left: 60 };
+
+        const svg = d3.select("#chart-container")
+            .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", `translate(${margin.left}, ${margin.top})`);
+
+        const xScale = d3.scaleBand()
+            .range([0, width])
+            .padding(0.2);
+
+        const yScale = d3.scaleLinear()
+            .range([height, 0]);
+
+        const xAxis = d3.axisBottom(xScale);
+        const yAxis = d3.axisLeft(yScale);
+
+        svg.append("g")
+            .attr("transform", `translate(0, ${height})`)
+            .attr("class", "x-axis");
+
+        svg.append("g").attr("class", "y-axis");
+
+        function updateChart(energyType) {
+            const data2024 = [
+                { type: "Natural Gas", value: 27.52 },
+                { type: "Renewable", value: 11.43 },
+                { type: "Nuclear", value: 8.25 }
+            ];
+
+            // Sort the data in descending order of the energy values
+            data2024.sort((a, b) => b.value - a.value);
+
+            // Update the xScale domain to match the sorted data types
+            xScale.domain(data2024.map(d => d.type));
+
+            yScale.domain([0, d3.max(data2024, d => d.value)]);
+
+            const bars = svg.selectAll("rect").data(data2024);
+
+            bars.enter()
+                .append("rect")
+                .attr("x", d => xScale(d.type))
+                .attr("y", height) 
+                .attr("width", xScale.bandwidth())
+                .attr("height", 0) 
+                .attr("fill", (d) => d.type === "Natural Gas" ? "#ff6f61" : d.type === "Renewable" ? "#76b041" : "#8a6dbd")
+                .transition() 
+                .duration(900) 
+                .attr("y", d => yScale(d.value)) 
+                .attr("height", d => height - yScale(d.value));
+
+            bars.transition() 
+                .duration(500)
+                .attr("y", d => yScale(d.value))
+                .attr("height", d => height - yScale(d.value));
+
+            bars.exit()
+                .transition() 
+                .duration(500)
+                .attr("height", 0)
+                .attr("y", height) 
+                .remove();
+
+            bars.on("mousemove", (event, d) => {
+                tooltip.style("left", `${event.pageX + 10}px`)
+                    .style("top", `${event.pageY + 10}px`)
+                    .style("opacity", 1)
+                    .html(`${d.type}: ${d.value} quadrillion BTUs`);
+            })
+            .on("mouseleave", () => tooltip.style("opacity", 0));
+
+            svg.select(".x-axis").call(xAxis);
+            svg.select(".y-axis").call(yAxis);
+        }
+
+        d3.select("#btn-natural-gas").on("click", () => updateChart("Natural Gas"));
+        d3.select("#btn-renewable").on("click", () => updateChart("Renewable"));
+        d3.select("#btn-nuclear").on("click", () => updateChart("Nuclear"));
+
+        updateChart(); // Initial chart showing all data
+    </script>
+</body>
+</html>
